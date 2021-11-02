@@ -83,7 +83,7 @@ shinyServer(function(input, output){
         Dataset3 <- Data_for_algo() %>% dplyr::select(!!!input$selVar)
         
         if(input$scale==TRUE){
-          Dataset3 = as.data.frame(scale(Dataset3, center = T, scale = T))
+          Dataset3 = as.data.frame(scale(Dataset3, center = T, scale = F))
           Dataset3 = round(Dataset3,3)
         }
         

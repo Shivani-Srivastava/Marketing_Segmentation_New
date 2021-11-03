@@ -83,10 +83,10 @@ shinyServer(function(input, output){
       else {
         Dataset3 <- Data_for_algo() %>% dplyr::select(!!!input$selVar)
         
-        if(input$scale==TRUE){
-          Dataset3 = as.data.frame(scale(Dataset3, center = FALSE, scale = apply(Dataset3, 2, sd, na.rm = TRUE)))
-          Dataset3 = round(Dataset3,3)
-        }
+        
+        Dataset3 = as.data.frame(scale(Dataset3, center = FALSE, scale = apply(Dataset3, 2, sd, na.rm = TRUE)))
+        Dataset3 = round(Dataset3,3)
+        
         
         fit = kmeans(Dataset3,input$Clust)
         Segment.Membership =  paste0("segment","_",fit$cluster)
@@ -125,8 +125,48 @@ shinyServer(function(input, output){
   })
   
   output$table <- renderDataTable({
-    t0()%>% mutate(across(where(is.numeric), round, 3))
-  }, options = list(lengthMenu = c(5, 30, 50,100), pageLength = 30))
+    if (input$select == "K-Means") ({
+      
+      if (is.null(input$file)) {
+        # User has not uploaded a file yet
+        return(data.frame())
+      }
+      else {
+        Dataset3 <- Data_for_algo() %>% dplyr::select(!!!input$selVar)
+        
+        if(input$scale==TRUE){
+          Dataset3 = as.data.frame(scale(Dataset3, center = TRUE, scale = TRUE))
+          Dataset3 = round(Dataset3,3)
+        }
+        
+        fit = kmeans(Dataset3,input$Clust)
+        Segment.Membership =  paste0("segment","_",fit$cluster)
+        d = data.frame(r.name = row.names(Dataset3),Segment.Membership,Dataset3)
+        d <- d %>% mutate(across(where(is.numeric), round, 3))
+        return(d)
+      }
+    })
+    
+    else if (input$select == "Hierarchical") ({
+      if (is.null(input$file)) {
+        # User has not uploaded a file yet
+        return(data.frame())
+      }
+      else {
+        Dataset3 <- Data_for_algo() %>% dplyr::select(!!!input$selVar)
+        distm <- dist(Dataset3, method = "euclidean") # distance matrix
+        fit <- hclust(distm, method="ward") 
+        Segment.Membership =  cutree(fit, k=input$Clust)
+        Segment.Membership =  paste0("segment","_",Segment.Membership)
+        d = data.frame(r.name = row.names(Dataset3),Segment.Membership,Dataset3)
+        d <- d %>% mutate(across(where(is.numeric), round, 3))
+        return(d)
+      }
+    })
+  })
+    
+    
+  
   
   output$caption1 <- renderText({
     if (input$select == "Model Based") return ("Model Based Segmentation -  Summary")
@@ -150,7 +190,20 @@ shinyServer(function(input, output){
       }
       else {
         
-        summ <- t0()[-1]%>% group_by(Segment.Membership) %>%
+        Dataset3 <- Data_for_algo() %>% dplyr::select(!!!input$selVar)
+        
+        if(input$scale==TRUE){
+          Dataset3 = as.data.frame(scale(Dataset3, center = TRUE, scale = TRUE))
+          Dataset3 = round(Dataset3,3)
+        }
+        
+        fit = kmeans(Dataset3,input$Clust)
+        Segment.Membership =  paste0("segment","_",fit$cluster)
+        d = data.frame(r.name = row.names(Dataset3),Segment.Membership,Dataset3)
+        d <- d %>% mutate(across(where(is.numeric), round, 3))
+        
+        
+        summ <- d[-1]%>% group_by(Segment.Membership) %>%
           summarise_if(is.numeric, ~round(mean(.),2))
         
         summ_t <- as.data.frame(t(summ))%>%`colnames<-`(.[1, ]) %>% .[-1, ]

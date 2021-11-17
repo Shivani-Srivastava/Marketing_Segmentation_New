@@ -265,6 +265,7 @@ shinyServer(function(input, output){
   
   output$plot = renderPlot({  
     
+    set.seed(12345)
     
     if (input$select == "K-Means") ({
       if (is.null(input$file)) {

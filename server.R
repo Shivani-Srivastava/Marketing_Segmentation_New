@@ -73,7 +73,22 @@ shinyServer(function(input, output){
     }
   )
   
+ 
+  output$downloadData01 <- downloadHandler(
+    filename = function() { "mtcars.csv" },
+    content = function(file) {
+      write.csv(read.csv("data/mtcars dataset.csv"), file, row.names=F)
+    }
+  )      
   
+      
+ 
+  output$downloadData001 <- downloadHandler(
+    filename = function() { "toothpaste.csv" },
+    content = function(file) {
+      write.csv(read.csv("data/factorAn ex1 toothpaste data.csv"), file, row.names=F)
+    }
+  )      
   # Partial example
   output$colList <- renderUI({
     varSelectInput("selVar",label = "Select Variables",data = Dataset(),multiple = TRUE,selectize = TRUE,selected = colnames(Dataset()))

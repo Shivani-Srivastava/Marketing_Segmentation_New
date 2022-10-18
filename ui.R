@@ -55,6 +55,8 @@ shinyUI(fluidPage(
                          hr(),
                          h4(p("Download Sample files")), br(),
                          downloadButton('downloadData1', 'Download Segmentation Sample file'), br(),br(),
+                         downloadButton('downloadData01', 'Download mtcars file'), br(),br(),
+                         downloadButton('downloadData001', 'Download toothpaste survey file'), br(),br(),
                          
                          p("Please note that download will not work with RStudio interface. Download will work only in web-browsers. So open this app in a web-browser and then download the example file. For opening this app in web-browser click on \"Open in Browser\" as shown below -",
                            align="justify"),
